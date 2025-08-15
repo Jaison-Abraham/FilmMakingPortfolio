@@ -12,6 +12,7 @@
     --text-secondary: #94a3b8;
 }
 
+/* Reset */
 * {
     margin: 0;
     padding: 0;
@@ -195,6 +196,7 @@ nav {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    z-index: 1;
 }
 
 .btn-primary::before {
@@ -227,6 +229,8 @@ nav {
     border: 1px solid rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
 
 .btn-secondary:hover {
@@ -457,95 +461,103 @@ nav {
     line-height: 1.6;
 }
 
-/* Portfolio Section */
+/* =========================
+   Portfolio Section (Fixed)
+   ========================= */
 .portfolio-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    /* ★ CHANGED: smoother breakpoints */
+    gap: 2rem;
 }
 
-@media (min-width: 1024px) {
-  .portfolio-grid .portfolio-item:last-child {
-    grid-column: 1 / -1;  
-    justify-self: center;   
-    max-width: 400px;       
-    width: 100%;
-  }
+@media (min-width: 1000px) {
+
+    /* ★ CHANGED: only center last tile when item count is odd */
+    .portfolio-grid .portfolio-item:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+        justify-self: center;
+        max-width: 400px;
+        width: 100%;
+    }
 }
 
 /* Card */
 .portfolio-item {
-  position: relative;
-  height: 300px;
-  border-radius: 20px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.5s ease;
-  will-change: transform;
+    position: relative;
+    height: 300px;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.5s ease;
+    will-change: transform;
 }
 
 .portfolio-item:hover {
-  transform: scale(1.05);
+    transform: scale(1.05);
 }
 
 .portfolio-image {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  position: relative;
-  overflow: hidden;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    position: relative;
+    overflow: hidden;
 }
 
 .portfolio-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+    display: block;
+    /* ★ CHANGED: remove baseline gap */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .portfolio-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .portfolio-item:hover .portfolio-overlay {
-  opacity: 1;
+    opacity: 1;
 }
 
 .portfolio-overlay h3 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: var(--text-primary);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
 }
 
 .portfolio-overlay p {
-  color: var(--text-secondary);
-  text-align: center;
-  line-height: 1.6;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.6;
 }
 
-
 @media (prefers-reduced-motion: reduce) {
-  .portfolio-item {
-    transition: none;
-  }
-  .portfolio-item:hover {
-    transform: none;
-  }
-  .portfolio-overlay {
-    transition: none;
-  }
+    .portfolio-item {
+        transition: none;
+    }
+
+    .portfolio-item:hover {
+        transform: none;
+    }
+
+    .portfolio-overlay {
+        transition: none;
+    }
 }
 
 /* Contact Section */
@@ -767,12 +779,13 @@ footer {
     transform: scale(1.1);
 }
 
-/* Additional styles for enhanced functionality */
+/* A11y helpers */
 .keyboard-navigation *:focus {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
 }
 
+/* Mobile nav */
 .mobile-active {
     display: flex !important;
     flex-direction: column;
@@ -810,20 +823,11 @@ body.loaded .hero-content {
     animation: heroTitle 1.5s ease-out forwards;
 }
 
-/* Enhanced button animations */
-.btn-primary,
-.btn-secondary {
-    position: relative;
-    z-index: 1;
-}
-
+/* Enhanced button overlay */
 .btn-primary::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: linear-gradient(45deg, var(--secondary), var(--accent));
     border-radius: inherit;
     opacity: 0;
