@@ -1,15 +1,20 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jaison Abraham- Filmmaker Portfolio</title>
+    <title>Jaison Abraham - Filmmaker Portfolio</title>
     <link rel="stylesheet" href="assets/css/styles.css" />
   </head>
   <body>
     <header>
       <nav class="container">
         <div class="logo">Jaison Abraham</div>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
         <ul class="nav-links">
           <li><a href="#home">Home</a></li>
           <li><a href="#about">About</a></li>
@@ -21,14 +26,12 @@
     </header>
 
     <section id="home" class="hero">
-      <!-- Video Background -->
       <video class="video-background" autoplay muted loop playsinline>
         <source src="assets/media/Finaltoae.mp4" type="video/mp4" />
       </video>
 
       <div class="video-overlay"></div>
 
-      <!-- Floating Elements -->
       <div class="floating-elements">
         <div class="floating-element"></div>
         <div class="floating-element"></div>
@@ -81,19 +84,19 @@
             </p>
             <div class="stats-grid">
               <div class="stat-item">
-                <span class="stat-number">50+</span>
+                <span class="stat-number">50</span>
                 <span class="stat-label">Projects Completed</span>
               </div>
               <div class="stat-item">
-                <span class="stat-number">5+</span>
+                <span class="stat-number">5</span>
                 <span class="stat-label">Years Experience</span>
               </div>
               <div class="stat-item">
-                <span class="stat-number">25+</span>
+                <span class="stat-number">25</span>
                 <span class="stat-label">Happy Clients</span>
               </div>
               <div class="stat-item">
-                <span class="stat-number">2+</span>
+                <span class="stat-number">2</span>
                 <span class="stat-label">Awards</span>
               </div>
             </div>
@@ -102,8 +105,7 @@
             <div class="profile-image">
               <img
                 src="assets/media/IMG_0146.jpg"
-                alt="Profile Image"
-                height="550"
+                alt="Jaison Abraham Profile"
               />
             </div>
           </div>
@@ -164,12 +166,15 @@
           </p>
         </div>
         <div class="portfolio-grid">
-          <div class="portfolio-item">
-            <div class="portfolio-image">
-              <img src="assets/media/film.jpeg" />
+          <div class="portfolio-item" data-video="assets/media/reel 1 final coloured.MP4">
+            <div class="portfolio-video-wrapper">
+              <video class="portfolio-video" muted loop playsinline>
+                <source src="assets/media/reel 1 final coloured.MP4" type="video/mp4" />
+              </video>
+              <img src="assets/media/film.jpeg" alt="Music Video" class="portfolio-fallback" />
             </div>
             <div class="portfolio-overlay">
-              <h3>Feature Film Project</h3>
+              <h3>Music Video</h3>
               <p>
                 Complete post-production for an independent feature film,
                 including complex narrative editing and cinematic color grading
@@ -177,11 +182,13 @@
               </p>
             </div>
           </div>
-          <div class="portfolio-item">
-            <div class="portfolio-image">
-              <div class="portfolio-image">
-                <img src="assets/media/car.png" />
-              </div>
+
+          <div class="portfolio-item" data-video="assets/media/Lisso.mp4">
+            <div class="portfolio-video-wrapper">
+              <video class="portfolio-video" muted loop playsinline>
+                <source src="assets/media/Lisso.mp4" type="video/mp4" />
+              </video>
+              <img src="assets/media/car.png" alt="Brand Commercial" class="portfolio-fallback" />
             </div>
             <div class="portfolio-overlay">
               <h3>Brand Commercial</h3>
@@ -193,25 +200,32 @@
             </div>
           </div>
 
-          <div class="portfolio-item">
-            <div class="portfolio-image">
-              <img src="assets/media/shortfilm.jpg" />
-            </div>
-            <div class="portfolio-overlay">
-              <h3>Music Video</h3>
-              <p>
-                Creative music video with experimental editing techniques and
-                bold color choices that perfectly complemented the artist's
-                vision and musical style.
-              </p>
-            </div>
-          </div>
-          <div class="portfolio-item">
-            <div class="portfolio-image">
-              <img src="assets/media/documentry.jpg" />
+          <div class="portfolio-item" data-video="assets/media/230609.mp4">
+            <div class="portfolio-video-wrapper">
+              <video class="portfolio-video" muted loop playsinline>
+                <source src="assets/media/230609.mp4" type="video/mp4" />
+              </video>
+              <img src="assets/media/shortfilm.jpg" alt="Web Series" class="portfolio-fallback" />
             </div>
             <div class="portfolio-overlay">
               <h3>Web Series</h3>
+              <p>
+                Multi episode web series with consistent visual language,
+                efficient workflow management, and serialized storytelling
+                through expert editing.
+              </p>
+            </div>
+          </div>
+
+          <div class="portfolio-item" data-video="assets/media/CocertVideoForPortFolio.mp4">
+            <div class="portfolio-video-wrapper">
+              <video class="portfolio-video" muted loop playsinline>
+                <source src="assets/media/CocertVideoForPortFolio.mp4" type="video/mp4" />
+              </video>
+              <img src="assets/media/documentry.jpg" alt="Concerts" class="portfolio-fallback" />
+            </div>
+            <div class="portfolio-overlay">
+              <h3>Concerts</h3>
               <p>
                 Multi-episode web series with consistent visual language,
                 efficient workflow management, and serialized storytelling
@@ -223,8 +237,62 @@
       </div>
     </section>
 
+    <!-- Video Popup Modal -->
+    <div class="video-modal" id="videoModal">
+      <div class="video-modal-overlay" onclick="closeVideoModal()"></div>
+      <div class="video-modal-content">
+        <button class="video-modal-close" onclick="closeVideoModal()" aria-label="Close video">&times;</button>
+        <video id="modalVideo" controls preload="metadata">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+
     <section id="contact" class="section">
       <div class="container">
+        <!-- Brand Clients Section -->
+        <div class="brands-section">
+          <h3 class="brands-title">Trusted By Leading Brands</h3>
+          <div class="brands-grid">
+            <div class="brand-item">
+              <img src="assets/media/jbl-logo.svg" alt="JBL India" class="brand-logo" />
+            </div>
+            <div class="brand-item">
+              <img src="assets/media/redfm.jpg" alt="Red FM" class="brand-logo" />
+            </div>
+            <div class="brand-item">
+              <img src="assets/media/lisso.jpeg" alt="Lisso Chocolate" class="brand-logo" />
+            </div>
+            <div class="brand-item">
+              <img src="assets/media/ather.png" alt="Ather India" class="brand-logo" />
+            </div>
+          </div>
+        </div>
+
+        <div class="container">
+        <!-- Software -->
+        <div class="brands-section">
+          <h3 class="brands-title">Software Proficiency</h3>
+          <div class="brands-grid">
+            <div class="brand-item">
+              <img src="assets/media/AE.jpeg" alt="After Effects" class="brand-logo" />
+            </div>
+            <div class="brand-item">
+              <img src="assets/media/PR.jpeg" alt="Adobe Premiere Pro"  class="brand-logo" />
+            </div>
+            <div class="brand-item">
+              <img src="assets/media/DA.jpeg" alt="DaVinci Resolve" class="brand-logo" />
+            </div>
+            <div class="brand-item">
+              <img src="assets/media/Fcp.jpeg" alt="FCP" class="brand-logo" />
+            </div>
+                 <div class="brand-item">
+              <img src="assets/media/Avid.png" alt="Avid Media Composer" class="brand-logo" />
+            </div>
+          </div>
+        </div>
+
+
         <div class="section-header">
           <h2 class="section-title">Let's Create Together</h2>
           <p class="section-subtitle">
@@ -334,7 +402,7 @@
     <footer>
       <div class="container">
         <p>
-          &copy; 2025 Your Name. All rights reserved. | Film Editor & Color
+          &copy; 2025 Jaison Abraham. All rights reserved. | Film Editor & Color
           Grading Specialist | WIFT Graduate
         </p>
       </div>

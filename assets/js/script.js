@@ -1,6 +1,7 @@
 const header = document.querySelector("header");
 const video = document.querySelector(".video-background");
 
+// Scroll handling
 window.addEventListener(
   "scroll",
   () => {
@@ -10,15 +11,24 @@ window.addEventListener(
   { passive: true }
 );
 
+// Smooth scrolling
 document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
   anchor.addEventListener("click", (e) => {
     const target = document.querySelector(anchor.getAttribute("href"));
     if (!target) return;
     e.preventDefault();
+    
+    // Close mobile menu if open
+    const navLinks = document.querySelector(".nav-links");
+    if (navLinks && navLinks.classList.contains("mobile-active")) {
+      navLinks.classList.remove("mobile-active");
+    }
+    
     target.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 });
 
+// Intersection Observer for animations
 const revealObserver = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
@@ -40,6 +50,15 @@ document
     revealObserver.observe(el);
   });
 
+// Animate brand logos separately
+document.querySelectorAll(".brand-logo").forEach((el) => {
+  el.style.opacity = "0";
+  el.style.transform = "translateY(30px)";
+  el.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+  revealObserver.observe(el);
+});
+
+// Counter animation
 function animateCounter(el, target) {
   let current = 0;
   const step = Math.max(1, Math.floor(target / 100));
@@ -69,7 +88,7 @@ if (statsGrid) {
   statsObserver.observe(statsGrid);
 }
 
-// --------- Parallax dots with extra motion
+// Parallax floating elements
 (() => {
   const dots = Array.from(document.querySelectorAll(".floating-element"));
   if (!dots.length) return;
@@ -90,7 +109,7 @@ if (statsGrid) {
     time += 0.02;
     dots.forEach((el, i) => {
       const speed = 0.5 + i * 0.15;
-      const wave = Math.sin(time + i) * 100; 
+      const wave = Math.sin(time + i) * 100;
       const offsetY = latestY * speed + wave;
       const offsetX = Math.cos(time + i * 0.5) * 10;
       el.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${
@@ -101,10 +120,12 @@ if (statsGrid) {
   }
 
   window.addEventListener("scroll", onScroll, { passive: true });
-  setInterval(updateDots, 16); 
+  setInterval(updateDots, 16);
 })();
 
+// Portfolio video handling
 document.addEventListener("DOMContentLoaded", () => {
+  // Background video setup
   if (video) {
     video.muted = true;
     video.loop = true;
@@ -126,22 +147,216 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Portfolio videos setup
+  const portfolioItems = document.querySelectorAll(".portfolio-item");
+  
+  portfolioItems.forEach((item) => {
+    const videoEl = item.querySelector(".portfolio-video");
+    const fallbackImg = item.querySelector(".portfolio-fallback");
+    
+    if (videoEl) {
+      // Set video attributes
+      videoEl.muted = true;
+      videoEl.loop = true;
+      videoEl.setAttribute("playsinline", "");
+      videoEl.preload = "metadata";
+      
+      // Try to load video
+      videoEl.addEventListener("error", () => {
+        console.warn("Portfolio video failed to load, showing fallback image");
+        videoEl.style.display = "none";
+        if (fallbackImg) {
+          fallbackImg.style.display = "block";
+        }
+      });
+
+      videoEl.addEventListener("loadeddata", () => {
+        console.log("Video loaded successfully");
+      });
+
+      // Play video on hover (muted)
+      item.addEventListener("mouseenter", () => {
+        if (videoEl.style.display !== "none") {
+          videoEl.muted = true;
+          videoEl.play().catch(err => {
+            console.debug("Video play failed:", err);
+            // If autoplay fails, show fallback
+            if (fallbackImg) {
+              videoEl.style.display = "none";
+              fallbackImg.style.display = "block";
+            }
+          });
+        }
+      });
+
+      // Pause video when not hovering
+      item.addEventListener("mouseleave", () => {
+        if (videoEl.style.display !== "none") {
+          videoEl.pause();
+          videoEl.currentTime = 0;
+        }
+      });
+    }
+
+    // Click to open modal with sound - attached to the item itself
+    item.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const videoSrc = item.getAttribute("data-video");
+      console.log("Clicked portfolio item, video source:", videoSrc);
+      
+      if (videoSrc) {
+        openVideoModal(videoSrc);
+      } else {
+        console.error("No video source found in data-video attribute");
+      }
+    });
+  });
+
   document.body.classList.add("loaded");
 });
 
+// Video Modal Functions
+function openVideoModal(videoSrc) {
+  console.log("Opening video modal with source:", videoSrc);
+  
+  const modal = document.getElementById("videoModal");
+  const modalVideo = document.getElementById("modalVideo");
+  
+  if (!modal || !modalVideo) {
+    console.error("Modal or video element not found!");
+    return;
+  }
+  
+  // Pause all portfolio videos
+  document.querySelectorAll(".portfolio-video").forEach(v => {
+    v.pause();
+    v.currentTime = 0;
+  });
+  
+  // Set video source
+  modalVideo.src = videoSrc;
+  modalVideo.muted = false; // Enable sound
+  modalVideo.controls = true;
+  modalVideo.load();
+  
+  // Show modal
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+  
+  // Play video with sound after loading
+  modalVideo.addEventListener("loadedmetadata", function playOnce() {
+    modalVideo.play().then(() => {
+      console.log("Video playing successfully");
+    }).catch(err => {
+      console.error("Modal video play failed:", err);
+    });
+    modalVideo.removeEventListener("loadedmetadata", playOnce);
+  }, { once: true });
+}
+
+function closeVideoModal() {
+  console.log("Closing video modal");
+  
+  const modal = document.getElementById("videoModal");
+  const modalVideo = document.getElementById("modalVideo");
+  
+  if (modal && modalVideo) {
+    // Pause and reset video
+    modalVideo.pause();
+    modalVideo.currentTime = 0;
+    modalVideo.src = "";
+    
+    // Hide modal
+    modal.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+}
+
+// Close modal on overlay click
+document.addEventListener("click", (e) => {
+  const modal = document.getElementById("videoModal");
+  if (e.target.classList.contains("video-modal-overlay")) {
+    closeVideoModal();
+  }
+});
+
+// Close modal on Escape key
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    const modal = document.getElementById("videoModal");
+    if (modal && modal.classList.contains("active")) {
+      closeVideoModal();
+    }
+  }
+});
+
+// Expose closeVideoModal to global scope for inline onclick
+window.closeVideoModal = closeVideoModal;
+
+// Mobile menu toggle
 function toggleMobileMenu() {
   const navLinks = document.querySelector(".nav-links");
-  if (navLinks) navLinks.classList.toggle("mobile-active");
+  const menuBtn = document.querySelector(".mobile-menu-btn");
+  
+  if (navLinks) {
+    navLinks.classList.toggle("mobile-active");
+    
+    // Animate hamburger icon
+    if (menuBtn) {
+      menuBtn.classList.toggle("active");
+    }
+  }
 }
 window.toggleMobileMenu = toggleMobileMenu;
 
+// Close mobile menu when clicking outside
+document.addEventListener("click", (e) => {
+  const navLinks = document.querySelector(".nav-links");
+  const menuBtn = document.querySelector(".mobile-menu-btn");
+  
+  if (
+    navLinks &&
+    navLinks.classList.contains("mobile-active") &&
+    !e.target.closest("nav")
+  ) {
+    navLinks.classList.remove("mobile-active");
+    if (menuBtn) {
+      menuBtn.classList.remove("active");
+    }
+  }
+});
+
+// Performance optimization for low-end devices
 if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) {
   document.documentElement.style.setProperty("--animation-duration", "0.2s");
 }
 
+// Accessibility: Keyboard navigation
 document.addEventListener("keydown", (e) => {
   if (e.key === "Tab") document.body.classList.add("keyboard-navigation");
 });
 document.addEventListener("mousedown", () => {
   document.body.classList.remove("keyboard-navigation");
 });
+
+// Lazy load images
+if ("IntersectionObserver" in window) {
+  const imageObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        if (img.dataset.src) {
+          img.src = img.dataset.src;
+          img.removeAttribute("data-src");
+        }
+        imageObserver.unobserve(img);
+      }
+    });
+  });
+
+  document.querySelectorAll("img[data-src]").forEach((img) => {
+    imageObserver.observe(img);
+  });
+}
