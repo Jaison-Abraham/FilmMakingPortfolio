@@ -1,6 +1,25 @@
 const header = document.querySelector("header");
 const video = document.querySelector(".video-background");
 
+// Detect mobile device
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || 
+                 ('ontouchstart' in window);
+
+// Track if user has interacted
+let userHasInteracted = false;
+
+// Mark user interaction on first scroll or touch
+const markInteraction = () => {
+  if (!userHasInteracted) {
+    userHasInteracted = true;
+    console.log("User interaction detected");
+  }
+};
+
+window.addEventListener("scroll", markInteraction, { passive: true, once: true });
+window.addEventListener("touchstart", markInteraction, { passive: true, once: true });
+window.addEventListener("click", markInteraction, { passive: true, once: true });
+
 // Scroll handling
 window.addEventListener(
   "scroll",
@@ -161,7 +180,28 @@ document.addEventListener("DOMContentLoaded", () => {
       videoEl.setAttribute("playsinline", "");
       videoEl.preload = "metadata";
       
-      // Try to load video
+      // Track if this specific video has played
+      let hasPlayedOnce = false;
+      
+      // Function to try playing video
+      const tryPlayVideo = () => {
+        if (videoEl.style.display === "none") return;
+        
+        videoEl.muted = true;
+        videoEl.play().then(() => {
+          hasPlayedOnce = true;
+          console.log("Portfolio video playing");
+        }).catch(err => {
+          console.debug("Video play failed:", err);
+          // Only show fallback on complete failure
+          if (fallbackImg && err.name === "NotSupportedError") {
+            videoEl.style.display = "none";
+            fallbackImg.style.display = "block";
+          }
+        });
+      };
+      
+      // Error handling
       videoEl.addEventListener("error", () => {
         console.warn("Portfolio video failed to load, showing fallback image");
         videoEl.style.display = "none";
@@ -174,28 +214,56 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("Video loaded successfully");
       });
 
-      // Play video on hover (muted)
-      item.addEventListener("mouseenter", () => {
-        if (videoEl.style.display !== "none") {
-          videoEl.muted = true;
-          videoEl.play().catch(err => {
-            console.debug("Video play failed:", err);
-            // If autoplay fails, show fallback
-            if (fallbackImg) {
-              videoEl.style.display = "none";
-              fallbackImg.style.display = "block";
+      // Create intersection observer for viewport visibility
+      const videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            // Wait a bit for user interaction if on mobile
+            if (isMobile && !userHasInteracted) {
+              // Wait for interaction, then try to play
+              const playOnInteraction = () => {
+                setTimeout(() => tryPlayVideo(), 100);
+              };
+              window.addEventListener("scroll", playOnInteraction, { passive: true, once: true });
+              window.addEventListener("touchstart", playOnInteraction, { passive: true, once: true });
+            } else {
+              // Desktop or already interacted - play immediately
+              tryPlayVideo();
             }
-          });
-        }
+          } else {
+            // Pause when out of view to save resources
+            if (hasPlayedOnce && videoEl.style.display !== "none") {
+              videoEl.pause();
+            }
+          }
+        });
+      }, { 
+        threshold: 0.5,
+        rootMargin: "50px"
       });
+      
+      videoObserver.observe(item);
 
-      // Pause video when not hovering
-      item.addEventListener("mouseleave", () => {
-        if (videoEl.style.display !== "none") {
-          videoEl.pause();
-          videoEl.currentTime = 0;
-        }
-      });
+      // Mobile: play on touch
+      if (isMobile) {
+        item.addEventListener("touchstart", (e) => {
+          // Don't prevent default - we want click to still work for modal
+          tryPlayVideo();
+        }, { passive: true });
+      } else {
+        // Desktop: Play video on hover (muted)
+        item.addEventListener("mouseenter", () => {
+          tryPlayVideo();
+        });
+
+        // Pause video when not hovering
+        item.addEventListener("mouseleave", () => {
+          if (videoEl.style.display !== "none") {
+            videoEl.pause();
+            videoEl.currentTime = 0;
+          }
+        });
+      }
     }
 
     // Click to open modal with sound - attached to the item itself
