@@ -214,6 +214,11 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("Video loaded successfully");
       });
 
+      // Preload video on desktop
+      if (!isMobile) {
+        videoEl.load(); // Start loading video immediately
+      }
+
       // Create intersection observer for viewport visibility
       const videoObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -226,8 +231,11 @@ document.addEventListener("DOMContentLoaded", () => {
               };
               window.addEventListener("scroll", playOnInteraction, { passive: true, once: true });
               window.addEventListener("touchstart", playOnInteraction, { passive: true, once: true });
+            } else if (!isMobile) {
+              // Desktop: video is preloaded, just wait for hover to play
+              // Don't autoplay on scroll for desktop
             } else {
-              // Desktop or already interacted - play immediately
+              // Mobile after interaction
               tryPlayVideo();
             }
           } else {
@@ -251,7 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
           tryPlayVideo();
         }, { passive: true });
       } else {
-        // Desktop: Play video on hover (muted)
+        // Desktop: Play video on hover (muted) - video is already preloaded
         item.addEventListener("mouseenter", () => {
           tryPlayVideo();
         });
